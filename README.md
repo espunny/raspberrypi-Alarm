@@ -1,7 +1,7 @@
-raspberrypi-Alarm v1.02b
+raspberrypi-Alarm v1.02beta
+------------------------
 Author: Rubén García
 based on the original PIR module script of Matt Hawkins
-=================
 
 A simple Alarm script written in python for the raspberrypi and a PIR sensor using push notifications over Pushover.net
 
