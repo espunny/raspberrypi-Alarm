@@ -29,6 +29,20 @@ Programming the alarm
 ---------------------
 You can program and disable the push notifications by your pushover app.
 
+
+Running on background
+--------------------
+If your are using a ssh connection, when the ssh session ends, the script exit too. To avoid this you can use crontab, or screen program.
+$ sudo apt-get install screen
+Simple use:
+$ screen (make a new screen on the backgroud)
+$ sudo python alarma.py
+Ctrl+a and then push "d" (deatach)
+Now you can close the ssh and the alarm works on the background.
+to restore de screen session: $ screen -r
+More info with screen --help
+
+
 Future implementations
 ----------------------
 -Play a sound file on a thread.
