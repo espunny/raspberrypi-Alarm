@@ -1,4 +1,4 @@
-raspberrypi-Alarm v1.02beta
+Raspberrypi-Alarm v1.02beta
 ------------------------
 Author: Rubén García
 based on the original PIR module script of Matt Hawkins
