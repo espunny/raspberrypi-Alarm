@@ -1,4 +1,4 @@
-Raspberrypi-Alarm v1.02beta
+Raspberrypi-Alarm v1.2 beta
 ------------------------
 Author: Rubén García @espunnyesp
 
@@ -42,6 +42,11 @@ Ctrl+a and then push "d" (deatach)
 Now you can close the ssh and the alarm works on the background.
 to restore de screen session: $ screen -r
 More info with screen --help
+
+If you want to start the script when the raspberry boots you can edit the /etc/rc.local file and add this at end
+/path to your install/alarma.sh & (& runs on background)
+
+/etc/init.d/rc.local start || stop (to start and stop)
 
 
 Future implementations
