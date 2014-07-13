@@ -2,11 +2,11 @@
 # alarma.py
 # Detect movement using a PIR module with push notification using pushover service
 #
-# Based on : Matt Hawkins http://www.raspberrypi-spy.co.uk
-# Date    : 21/01/2013
-# Push notifications with pushover: Ruben Garcia http://espunnyidi.blogspot.com.es
+# Authors : Ruben Garcia basen on sample script from Matt Hawkins
+# Date    : 11/07/2014
+# Push notifications with pushover: Ruben Garcia
 # Date    : 22/04/2014
-# Rev 1.02
+# Rev 1.2
 
 
 # Import required Python libraries
@@ -26,7 +26,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO_PIR = 7
 
 parser= SafeConfigParser()
-parser.read ('alarm.ini')
+parser.read ('/home/pi/alarm.ini')
 url_pushover = parser.get('pushover_config','url')
 app_key = parser.get('pushover_config','app_key')
 user_key = parser.get('pushover_config','user_key')
@@ -50,15 +50,13 @@ print (txt_label)
 # Set pin as input
 GPIO.setup(GPIO_PIR,GPIO.IN)      # Echo
 
-Current_State  = 0
-Previous_State = 0
 conn = httplib.HTTPSConnection(url_pushover)
 # 0 ready, 1 sending
 pushprocess = 0
 # Send cooldown signal with 1
 cooldown = 0
 def threaded_PushAlarm():
-    global conn, pushprocessfinish, cooldown    
+    global conn, pushprocessfinish, cooldown, pushprocess    
     result=0   
     conn.request("POST", "/1/messages.json", urllib.urlencode({"token": app_key,"user": user_key,"message": "Movimiento Detectado",}), { "Content-type": "application/x-www-form-urlencoded" })
     result=conn.getresponse()        
@@ -76,44 +74,28 @@ def threaded_PushAlarm():
     else:
 	print (txt_PUSH_err)
 	pushprocess=0
+
+def MOTION(GPIO_PIR):
+  global pushprocess
+  # PIR is triggered
+  print (txt_PIR_tigered)
+  # Tiger push notification. Wait for the thread with pushprocess
+  if pushprocess==0:
+  	pushprocess=1
+  	thread = Thread(target = threaded_PushAlarm)
+  	thread.start()
+  	thread.join()
+
 try:
-
-  print (txt_PIR_waiting)
-
-  # Loop until PIR output is 0
-  while GPIO.input(GPIO_PIR)==1:
-    Current_State  = 0    
-
-  print (txt_PIR_online)     
-  
-  # Loop until users quits with CTRL-C
-  while True :
-   
-    # Read PIR state
-    Current_State = GPIO.input(GPIO_PIR)
-   
-    if Current_State==1 and Previous_State==0:
-      # PIR is triggered
-      print (txt_PIR_tigered)
-      # Record previous state
-      Previous_State=1
-      # Tiger push notification. Wait for the thread with pushprocess
-      if pushprocess==0:
-      	pushprocess=1
-	thread = Thread(target = threaded_PushAlarm)
-      	thread.start()
-      	thread.join()
-    elif Current_State==0 and Previous_State==1:
-      # PIR has returned to ready state
-      print (txt_PIR_ready)
-      Previous_State=0
-      
+  GPIO.add_event_detect(GPIO_PIR, GPIO.RISING, callback=MOTION)
+  while 1:
     # Wait for 10 milliseconds
-    
     if cooldown==1:
-    	pushprocess=0
+	pushprocess=0
     	cooldown=0
+	GPIO.remove_event_detect(GPIO_PIR)
 	time.sleep(cooldown_time)
+	GPIO.add_event_detect(GPIO_PIR, GPIO.RISING, callback=MOTION)
       
 except KeyboardInterrupt:
   print (txt_disablealarm)
